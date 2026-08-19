@@ -3,113 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ប្រព័ន្ធ Login & Notification ជាមួយ Firebase</title>
-    <!-- បញ្ចូល Font ខ្មែរ -->
+    <title>ប្រព័ន្ធ Login & Screen Notification</title>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600&display=swap" rel="stylesheet">
-    <!-- បញ្ចូល SDK EmailJS -->
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Kantumruy Pro', sans-serif;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Kantumruy Pro', sans-serif; }
         body {
             background: linear-gradient(135deg, #e0eafc, #cfdef3);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; padding: 20px;
         }
-
         .card {
-            background-color: #ffffff;
-            padding: 35px 30px;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 420px;
+            background-color: #ffffff; padding: 35px 30px; border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1); width: 100%; max-width: 420px;
         }
-
-        .card h2 {
-            color: #1a73e8;
-            font-size: 22px;
-            margin-bottom: 8px;
-            text-align: center;
-        }
-
-        .card p {
-            color: #5f6368;
-            font-size: 14px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .input-group {
-            margin-bottom: 16px;
-        }
-
-        .input-group label {
-            display: block;
-            color: #202124;
-            margin-bottom: 6px;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .input-group input {
-            width: 100%;
-            padding: 12px 14px;
-            border: 1px solid #dadce0;
-            border-radius: 6px;
-            font-size: 15px;
-            outline: none;
-        }
-
-        .input-group input:focus {
-            border-color: #1a73e8;
-            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        button {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 6px;
-            font-size: 15px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
+        .card h2 { color: #1a73e8; font-size: 22px; margin-bottom: 8px; text-align: center; }
+        .card p { color: #5f6368; font-size: 14px; margin-bottom: 20px; text-align: center; }
+        .input-group { margin-bottom: 16px; }
+        .input-group label { display: block; color: #202124; margin-bottom: 6px; font-size: 14px; font-weight: 500; }
+        .input-group input { width: 100%; padding: 12px 14px; border: 1px solid #dadce0; border-radius: 6px; font-size: 15px; outline: none; }
+        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
+        button { flex: 1; padding: 12px; border: none; border-radius: 6px; font-size: 15px; font-weight: 500; cursor: pointer; transition: 0.2s; }
         .btn-login { background-color: #1a73e8; color: white; }
         .btn-login:hover { background-color: #1557b0; }
-
         .btn-register { background-color: #34a853; color: white; }
         .btn-register:hover { background-color: #2d9247; }
-
+        .btn-enable-notif { background-color: #9c27b0; color: white; width: 100%; margin-top: 15px; display: none; }
+        .btn-enable-notif:hover { background-color: #7b1fa2; }
         .btn-action { background-color: #ff9800; color: white; width: 100%; margin-top: 15px; }
         .btn-action:hover { background-color: #e68a00; }
-
         .btn-logout { background-color: #ea4335; color: white; width: 100%; margin-top: 10px; }
-
-        #message {
-            margin-top: 15px;
-            text-align: center;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
+        #message { margin-top: 15px; text-align: center; font-size: 14px; font-weight: 500; }
         .dashboard { display: none; }
     </style>
 </head>
@@ -144,6 +68,9 @@
             <h2>ស្វាគមន៍!</h2>
             <p id="userEmailDisplay"></p>
             
+            <!-- ប៊ូតុងចុចសុំសិទ្ធិ Notification -->
+            <button id="enableNotifBtn" class="btn-enable-notif">🔔 ចុចទីនេះដើម្បីបើកសិទ្ធិ Notification</button>
+
             <!-- ប៊ូតុងតេស្តធ្វើប្រតិបត្តិការ -->
             <button id="buyBtn" class="btn-action">💳 តេស្តទិញទំនិញ $10.00</button>
             <button id="logoutBtn" class="btn-logout">ចាកចេញ (Logout)</button>
@@ -152,7 +79,7 @@
         <div id="message"></div>
     </div>
 
-    <!-- ===== Firebase Modular SDK ===== -->
+    <!-- ផ្នែក JavaScript ស្ថិតនៅចន្លោះ <script> ខាងក្រោមនេះ -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { 
@@ -163,7 +90,7 @@
             signOut 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        // ១. កូដ Firebase Config របស់អ្នក
+        // កូដ Firebase Config របស់អ្នក
         const firebaseConfig = {
             apiKey: "AIzaSyCK7w2phlBp-X6-1ycH4xvvIWuIv6FQH1A",
             authDomain: "my-first-app-babac.firebaseapp.com",
@@ -177,24 +104,20 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        // ២. កូដ EmailJS Config របស់អ្នក
-        emailjs.init("_MbXXSD7ZNNTux7-t");
-
-        // HTML Elements
+        // Elements
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
         const loginBtn = document.getElementById('loginBtn');
         const registerBtn = document.getElementById('registerBtn');
         const logoutBtn = document.getElementById('logoutBtn');
         const buyBtn = document.getElementById('buyBtn');
+        const enableNotifBtn = document.getElementById('enableNotifBtn');
         const messageDiv = document.getElementById('message');
         const authSection = document.getElementById('authSection');
         const dashboardSection = document.getElementById('dashboardSection');
         const userEmailDisplay = document.getElementById('userEmailDisplay');
 
-        let currentUserEmail = "";
-
-        // ៣. បង្កើតគណនី (Register)
+        // បង្កើតគណនី
         registerBtn.addEventListener('click', () => {
             const email = emailInput.value;
             const password = passwordInput.value;
@@ -205,7 +128,7 @@
                 .catch((err) => showMessage(getErrorMessage(err.code), "red"));
         });
 
-        // ៤. ចូលប្រើប្រាស់ (Login)
+        // ចូលប្រើប្រាស់
         loginBtn.addEventListener('click', () => {
             const email = emailInput.value;
             const password = passwordInput.value;
@@ -216,50 +139,56 @@
                 .catch((err) => showMessage(getErrorMessage(err.code), "red"));
         });
 
-        // ៥. ចាកចេញ (Logout)
-        logoutBtn.addEventListener('click', () => {
-            signOut(auth);
-        });
+        // ចាកចេញ
+        logoutBtn.addEventListener('click', () => { signOut(auth); });
 
-        // ៦. តាមដានស្ថានភាព Login & សុំសិទ្ធិ Notification
+        // តាមដានស្ថានភាព Login & ពិនិត្យសិទ្ធិ Notification
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                currentUserEmail = user.email;
                 authSection.style.display = "none";
                 dashboardSection.style.display = "block";
                 userEmailDisplay.innerText = "គណនី៖ " + user.email;
 
-                // សុំសិទ្ធិ Notification
-                if (Notification.permission !== 'granted') {
-                    Notification.requestPermission();
-                }
+                checkNotificationPermission();
             } else {
                 authSection.style.display = "block";
                 dashboardSection.style.display = "none";
             }
         });
 
-        // ៧. តេស្តធ្វើប្រតិបត្តិការទិញទំនិញ (ផ្ញើ Email + Pop-up Alert)
-        buyBtn.addEventListener('click', () => {
-            showMessage("កំពុងដំណើរការប្រតិបត្តិការ...", "#1a73e8");
+        // មុខងារពិនិត្យមើលសិទ្ធិ Notification
+        function checkNotificationPermission() {
+            if (Notification.permission !== 'granted') {
+                enableNotifBtn.style.display = "block";
+                showMessage("សូមចុចប៊ូតុងពណ៌ស្វាយខាងលើដើម្បីបើកសិទ្ធិ Notification!", "orange");
+            } else {
+                enableNotifBtn.style.display = "none";
+                showMessage("ប្រព័ន្ធ Notification រួចរាល់សម្រាប់ប្រើប្រាស់!", "green");
+            }
+        }
 
-            // ក. ផ្ញើ Email Alert តាម EmailJS
-            emailjs.send("service_ytb6stk", "template_puv7pxo", {
-                to_email: currentUserEmail,
-                message: "ប្រតិបត្តិការទិញទំនិញតម្លៃ $10.00 ទទួលបានជោគជ័យ!"
-            }).then(() => {
-                showMessage("ប្រតិបត្តិការជោគជ័យ! Email Alert ត្រូវ​បានផ្ញើចូលប្រអប់សំបុត្រ។", "green");
-            }).catch((err) => {
-                showMessage("ប្រតិបត្តិការជោគជ័យ! ប៉ុន្តែផ្ញើ Email មានបញ្ហា។", "orange");
-                console.error("EmailJS Error:", err);
+        // ចុចប៊ូតុងដើម្បីឱ្យវាសួរ Allow Notification
+        enableNotifBtn.addEventListener('click', () => {
+            Notification.requestPermission().then((permission) => {
+                if (permission === 'granted') {
+                    checkNotificationPermission();
+                    alert("អរគុណ! អ្នកបានបើកសិទ្ធិ Notification រួចរាល់ហើយ។");
+                } else if (permission === 'denied') {
+                    alert("អ្នកបានបដិសេធ (Block) Notification!");
+                }
             });
+        });
 
-            // ខ. បង្ហាញ Pop-up Alert លើ Screen មាន Logo
+        // 🔔 តេស្តធ្វើប្រតិបត្តិការទិញទំនិញ -> បង្ហាញសារ Alert លើ Screen
+        buyBtn.addEventListener('click', () => {
             if (Notification.permission === 'granted') {
                 new Notification("ទូទាត់ជោគជ័យ! 🎉", {
                     body: "ប្រតិបត្តិការទិញទំនិញតម្លៃ $10.00 រួចរាល់។",
-                    icon: "https://cdn-icons-png.flaticon.com/512/190/190411.png" // រូប Logo ខាងឆ្វេង
+                    icon: "https://cdn-icons-png.flaticon.com/512/190/190411.png"
                 });
+                showMessage("ប្រតិបត្តិការជោគជ័យ! សារ Alert បានលោតលើ Screen។", "green");
+            } else {
+                showMessage("សូមចុចប៊ូតុងពណ៌ស្វាយខាងលើដើម្បីបើកសិទ្ធិជាមុនសិន!", "red");
             }
         });
 
